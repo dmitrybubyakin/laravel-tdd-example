@@ -11,6 +11,7 @@ class ContactFormAttachmentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'g-recaptcha-response' => ['required', 'captcha'],
             'uuid' => ['required', 'uuid'],
             'attachment' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
         ];

@@ -15,6 +15,7 @@ class ContactFormTest extends TestCase
         // act
         // submit the form
         $this->postJson('/forms/contact', [
+            'g-recaptcha-response' => 'ok',
             'name' => '::name::',
             'email' => 'email@test.com',
             'phone' => '::phone::',
@@ -28,6 +29,20 @@ class ContactFormTest extends TestCase
             'email' => 'email@test.com',
             'phone' => '::phone::',
             'notes' => '::notes::',
+        ]);
+    }
+
+    /** @test */
+    public function captcha_is_required(): void
+    {
+        // act
+        // submit the form with an invalid g-recaptcha-response field
+        // assert
+        // assert that the response contains the error for the g-recaptcha-response field
+        $this->postJson('/forms/contact', [
+            'g-recaptcha-response' => 'invalid',
+        ])->assertJsonValidationErrors([
+            'g-recaptcha-response',
         ]);
     }
 }

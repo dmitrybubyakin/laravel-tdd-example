@@ -34,6 +34,7 @@ class ContactFormAttachmentsTest extends TestCase
 
         $response = $this
             ->postJson('/forms/contact/attachments', [
+                'g-recaptcha-response' => 'ok',
                 'attachment' => $attachmentOne,
             ])
             ->assertOk()
@@ -48,6 +49,7 @@ class ContactFormAttachmentsTest extends TestCase
 
         $this
             ->postJson('/forms/contact/attachments', [
+                'g-recaptcha-response' => 'ok',
                 'uuid' => $uuid,
                 'attachment' => $attachmentTwo,
             ])
@@ -124,6 +126,20 @@ class ContactFormAttachmentsTest extends TestCase
         $this->assertDatabaseMissing('temporary_uploads', [
             'hash' => $attachment->hashName(),
             'filename' => $attachment->getClientOriginalName(),
+        ]);
+    }
+
+    /** @test */
+    public function captcha_is_required(): void
+    {
+        // act
+        // submit the form with an invalid g-recaptcha-response field
+        // assert
+        // assert that the response contains the error for the g-recaptcha-response field
+        $this->postJson('/forms/contact/attachments', [
+            'g-recaptcha-response' => 'invalid',
+        ])->assertJsonValidationErrors([
+            'g-recaptcha-response',
         ]);
     }
 
