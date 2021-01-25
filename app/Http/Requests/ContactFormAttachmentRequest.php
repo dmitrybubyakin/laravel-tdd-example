@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\TemporaryUpload;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ContactFormAttachmentRequest extends FormRequest
@@ -29,9 +29,7 @@ class ContactFormAttachmentRequest extends FormRequest
     private function validateAttachmentsLimit(): callable
     {
         return function ($attribute, $value, callable $fail): void {
-            $temporaryUploadsCount = DB::table('temporary_uploads')->where('uuid', $this->uuid())->count();
-
-            if ($temporaryUploadsCount >= $this->attachmentsLimit) {
+            if (TemporaryUpload::for($this->uuid())->count() >= $this->attachmentsLimit) {
                 $fail('Attachments limit is reached.');
             }
         };
