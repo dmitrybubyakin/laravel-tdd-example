@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\ContactFormAttachmentsController;
+use App\Http\Controllers\ContactFormAttachmentsDeleteController;
+use App\Http\Controllers\ContactFormAttachmentsStoreController;
+use App\Http\Controllers\ContactFormStoreController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +20,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::post('forms/contact', ContactFormStoreController::class);
+Route::post('forms/contact/attachments', ContactFormAttachmentsStoreController::class);
+Route::delete('forms/contact/attachments/{temporaryUpload:hash}', ContactFormAttachmentsDeleteController::class);
+Route::get('forms/contact/{uuid}/attachments', ContactFormAttachmentsController::class);
