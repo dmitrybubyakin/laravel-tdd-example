@@ -143,6 +143,31 @@ class ContactFormAttachmentsTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function it_is_not_allowed_to_upload_more_than_3_attachments(): void
+    {
+        $uuid = (string) Str::uuid();
+
+        $data = fn () => [
+            'g-recaptcha-response' => 'ok',
+            'uuid' => $uuid,
+            'attachment' => $this->pdf(),
+        ];
+
+        // act
+        // upload 3 attachments
+        $this->postJson('/forms/contact/attachments', $data())->assertOk();
+        $this->postJson('/forms/contact/attachments', $data())->assertOk();
+        $this->postJson('/forms/contact/attachments', $data())->assertOk();
+
+        // act
+        // upload an attachment
+        // assert that the attachments limit is reached
+        $this->postJson('/forms/contact/attachments', $data())->assertJsonValidationErrors([
+            'attachment' => 'Attachments limit is reached.',
+        ]);
+    }
+
     private function pdf(string $name = 'doc.pdf', int $size = 1024): File
     {
         return UploadedFile::fake()->create($name, $size, 'application/pdf');
