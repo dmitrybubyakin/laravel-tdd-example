@@ -13,6 +13,7 @@ class CreateContactFormSubmissionsTable extends Migration
     {
         Schema::create('contact_form_submissions', function (Blueprint $table): void {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('name');
             $table->string('email');
             $table->string('phone');

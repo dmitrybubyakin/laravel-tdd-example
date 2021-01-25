@@ -11,6 +11,7 @@ class ContactFormRequest extends FormRequest
     {
         return [
             'g-recaptcha-response' => ['required', 'captcha'],
+            'uuid' => ['required', 'uuid', 'unique:contact_form_submissions'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['required', 'string', 'max:255'],
@@ -21,5 +22,12 @@ class ContactFormRequest extends FormRequest
     public function validated(): array
     {
         return Arr::except(parent::validated(), ['g-recaptcha-response']);
+    }
+
+    public function messages(): array
+    {
+        return [
+            'uuid.unique' => 'The form has already been submitted.',
+        ];
     }
 }

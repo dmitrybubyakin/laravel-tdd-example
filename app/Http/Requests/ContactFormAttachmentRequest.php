@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\ContactFormSubmission;
 use App\Models\TemporaryUpload;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
@@ -18,6 +19,7 @@ class ContactFormAttachmentRequest extends FormRequest
             'uuid' => ['required', 'uuid'],
             'attachment' => [
                 $this->validateAttachmentsLimit(),
+                $this->validateFormHaventBeenSubmitted(),
                 'required',
                 'file',
                 'mimes:pdf,doc,docx',
@@ -31,6 +33,15 @@ class ContactFormAttachmentRequest extends FormRequest
         return function ($attribute, $value, callable $fail): void {
             if (TemporaryUpload::for($this->uuid())->count() >= $this->attachmentsLimit) {
                 $fail('Attachments limit is reached.');
+            }
+        };
+    }
+
+    private function validateFormHaventBeenSubmitted(): callable
+    {
+        return function ($attribute, $value, callable $fail): void {
+            if (ContactFormSubmission::where('uuid', $this->uuid())->exists()) {
+                $fail('The attachment cannot be uploaded. The form has already been submitted.');
             }
         };
     }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ContactFormSubmission;
 use App\Models\TemporaryUpload;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -165,6 +166,28 @@ class ContactFormAttachmentsTest extends TestCase
         // assert that the attachments limit is reached
         $this->postJson('/forms/contact/attachments', $data())->assertJsonValidationErrors([
             'attachment' => 'Attachments limit is reached.',
+        ]);
+    }
+
+    /** @test */
+    public function it_is_not_allowed_to_upload_an_attachment_when_the_form_is_submitted(): void
+    {
+        $uuid = (string) Str::uuid();
+
+        // arrange
+        // create a new form submission using the uuid
+        ContactFormSubmission::factory()->create(['uuid' => $uuid]);
+
+        // act
+        // upload an attachment
+        // assert
+        // assert that the attachment cannot be uploaded as the form is submitted
+        $this->postJson('/forms/contact/attachments', [
+            'g-recaptcha-response' => 'ok',
+            'uuid' => $uuid,
+            'attachment' => $this->pdf(),
+        ])->assertJsonValidationErrors([
+            'attachment' => 'The attachment cannot be uploaded. The form has already been submitted.',
         ]);
     }
 
