@@ -2,13 +2,24 @@
 
 namespace Tests\Feature;
 
+use App\AnonymousNotifiableFactory;
 use App\Models\ContactFormSubmission;
+use App\Notifications\Admin\NewContactFormSubmission;
+use App\Notifications\FormWillBeProcessedSoon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class ContactFormTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        Notification::fake();
+    }
 
     /** @test */
     public function form_data_are_stored_in_database(): void
@@ -60,5 +71,34 @@ class ContactFormTest extends TestCase
         ])->assertJsonValidationErrors([
             'uuid' => 'The form has already been submitted.',
         ]);
+    }
+
+    /** @test */
+    public function admin_receives_the_notification_that_there_is_a_new_form_submission(): void
+    {
+        $this->postJson('/forms/contact', ContactFormSubmission::factory()->raw([
+            'g-recaptcha-response' => 'ok',
+        ]))->assertOk();
+
+        Notification::assertSentTo(
+            AnonymousNotifiableFactory::email('admin@app.test'),
+            NewContactFormSubmission::class
+        );
+    }
+
+    /** @test */
+    public function the_form_submitter_receives_the_notification_that_the_form_will_be_processed_soon(): void
+    {
+        $email = 'john@doe.test';
+
+        $this->postJson('/forms/contact', ContactFormSubmission::factory()->raw([
+            'g-recaptcha-response' => 'ok',
+            'email' => $email,
+        ]))->assertOk();
+
+        Notification::assertSentTo(
+            AnonymousNotifiableFactory::email($email),
+            FormWillBeProcessedSoon::class
+        );
     }
 }
