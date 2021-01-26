@@ -191,6 +191,37 @@ class ContactFormAttachmentsTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function attachments_are_removed_from_temporary_uploads_once_the_form_is_submitted(): void
+    {
+        // arrange
+        // put a file in the filesystem
+        // create a record in the database
+        $attachment = $this->pdf();
+        $uuid = (string) Str::uuid();
+        $attachmentData = [
+            'uuid' => $uuid,
+            'hash' => $attachment->hashName(),
+            'filename' => $attachment->getClientOriginalName(),
+        ];
+
+        $this->disk->putFileAs('', $attachment, $attachment->hashName());
+
+        TemporaryUpload::factory()->create($attachmentData);
+
+        // act
+        // submit the form
+        $this->postJson('/forms/contact', ContactFormSubmission::factory()->raw([
+            'uuid' => $uuid,
+            'g-recaptcha-response' => 'ok',
+        ]))->assertOk();
+
+        // assert that the attachment is missing in the temporary_uploads table
+        $this->assertDatabaseMissing('temporary_uploads', $attachmentData);
+        // assert that the attachment is on the uploads table
+        $this->assertDatabaseHas('uploads', $attachmentData);
+    }
+
     private function pdf(string $name = 'doc.pdf', int $size = 1024): File
     {
         return UploadedFile::fake()->create($name, $size, 'application/pdf');

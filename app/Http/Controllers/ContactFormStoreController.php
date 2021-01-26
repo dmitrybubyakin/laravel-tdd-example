@@ -10,7 +10,9 @@ class ContactFormStoreController
 {
     public function __invoke(ContactFormRequest $request): JsonResponse
     {
-        ContactFormSubmission::create($request->validated());
+        $form = ContactFormSubmission::create($request->validated());
+
+        $form->moveTemporaryUploads();
 
         return response()->json();
     }

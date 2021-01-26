@@ -19,6 +19,11 @@ class ContactFormRequest extends FormRequest
         ];
     }
 
+    public function uuid(): string
+    {
+        return $this->input('uuid');
+    }
+
     public function validated(): array
     {
         return Arr::except(parent::validated(), ['g-recaptcha-response']);

@@ -12,6 +12,15 @@ class TemporaryUpload extends Model
 
     protected $guarded = [];
 
+    public function move(): void
+    {
+        $attributes = $this->only(['filename', 'hash', 'uuid']);
+
+        Upload::create($attributes);
+
+        $this->delete();
+    }
+
     public function scopeFor(Builder $query, string $uuid): Builder
     {
         return $query->where('uuid', $uuid);

@@ -10,4 +10,11 @@ class ContactFormSubmission extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function moveTemporaryUploads(): void
+    {
+        TemporaryUpload::for($this->uuid)->get()->each(
+            fn (TemporaryUpload $temporaryUpload) => $temporaryUpload->move()
+        );
+    }
 }
