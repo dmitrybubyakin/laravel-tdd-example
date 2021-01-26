@@ -5,6 +5,7 @@ namespace App\Models;
 use App\AnonymousNotifiableFactory;
 use App\Notifications\Admin\NewContactFormSubmission;
 use App\Notifications\FormWillBeProcessedSoon;
+use App\Services\GoogleSpreadsheetApp;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -33,5 +34,10 @@ class ContactFormSubmission extends Model
         AnonymousNotifiableFactory::email($this->email)->notify(
             new FormWillBeProcessedSoon
         );
+    }
+
+    public function submitFormDataToGoogleSpreadsheet(): void
+    {
+        app(GoogleSpreadsheetApp::class)->submitFormData($this->toArray());
     }
 }

@@ -6,8 +6,10 @@ use App\AnonymousNotifiableFactory;
 use App\Models\ContactFormSubmission;
 use App\Notifications\Admin\NewContactFormSubmission;
 use App\Notifications\FormWillBeProcessedSoon;
+use App\Services\GoogleSpreadsheetApp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class ContactFormTest extends TestCase
@@ -100,5 +102,21 @@ class ContactFormTest extends TestCase
             AnonymousNotifiableFactory::email($email),
             FormWillBeProcessedSoon::class
         );
+    }
+
+    /** @test */
+    public function form_data_are_sent_to_google_spreadsheet(): void
+    {
+        $this->mock(GoogleSpreadsheetApp::class, function (MockInterface $mock): void {
+            $mock->shouldReceive('submitFormData')->times(2);
+        });
+
+        $this->postJson('/forms/contact', ContactFormSubmission::factory()->raw([
+            'g-recaptcha-response' => 'ok',
+        ]))->assertOk();
+
+        $this->postJson('/forms/contact', ContactFormSubmission::factory()->raw([
+            'g-recaptcha-response' => 'ok',
+        ]))->assertOk();
     }
 }

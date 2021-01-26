@@ -30,4 +30,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'google_spreadsheet_app' => [
+        'deployment_id' => env('GOOGLE_SPREADSHEET_APP_DEPLOYMENT_ID'),
+    ],
+
 ];

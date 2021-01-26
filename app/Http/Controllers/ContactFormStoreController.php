@@ -15,6 +15,7 @@ class ContactFormStoreController
         $form->moveTemporaryUploads();
         $form->notifyAdmin();
         $form->notifySubmitter();
+        $form->submitFormDataToGoogleSpreadsheet();
 
         return response()->json();
     }
