@@ -98,10 +98,9 @@ class ContactFormTest extends TestCase
             'email' => $email,
         ]))->assertOk();
 
-        Notification::assertSentTo(
-            AnonymousNotifiableFactory::email($email),
-            FormWillBeProcessedSoon::class
-        );
+        $form = ContactFormSubmission::first();
+
+        Notification::assertSentTo($form, FormWillBeProcessedSoon::class);
     }
 
     /** @test */

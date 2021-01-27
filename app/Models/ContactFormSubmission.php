@@ -8,10 +8,11 @@ use App\Notifications\FormWillBeProcessedSoon;
 use App\Services\GoogleSpreadsheetApp;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class ContactFormSubmission extends Model
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $guarded = [];
 
@@ -31,9 +32,7 @@ class ContactFormSubmission extends Model
 
     public function notifySubmitter(): void
     {
-        AnonymousNotifiableFactory::email($this->email)->notify(
-            new FormWillBeProcessedSoon
-        );
+        $this->notify(new FormWillBeProcessedSoon);
     }
 
     public function submitFormDataToGoogleSpreadsheet(): void
